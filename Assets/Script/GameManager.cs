@@ -12,8 +12,11 @@ public class GameManager : ColorSwitch
 {
     #region Constants
 
-    public const float MAX_ROTATE_SPEED = 2.0f;
+    public const float MAX_ROTATE_SPEED = 1.3f;
     public const float MIN_ROTATE_SPEED = 0.8f;
+
+    public float SHAPES_BETWEEN_DISTANCE = 5.0f;
+    public float COLORSWITCHER_BETWEEN_DISTANCE = 5.0f;
 
     #endregion
 
@@ -57,15 +60,8 @@ public class GameManager : ColorSwitch
         Initialize();
     }
 
-    public void Update()
+    public void LateUpdate()
     {
-        //if (Score != 0 && Score % 3 == 0)
-        //{
-        //    SetObjectTransform();
-        //    SetObjectRotateSpeed();
-        //    SetChangeShapeProperty();
-        //}
-
         mRightRotateShapes = Shapes.Where(ite => ite.Direction == DirectionType.Right).ToList();
         mRightRotateShapes.ForEach(it => it.transform.Rotate(Vector3.forward * it.RotateSpeed));
         mLeftRotateShapes = Shapes.Where(ite => ite.Direction == DirectionType.Left).ToList();
@@ -80,13 +76,13 @@ public class GameManager : ColorSwitch
     {
         if (Score != mLastTransformChangeCoin)
         {
-            Shapes[0].transform.position = Shapes[6].transform.position + (Vector3.up * 5.0f);
-            Shapes[1].transform.position = Shapes[0].transform.position + (Vector3.up * 5.0f);
+            Shapes[0].transform.position = Shapes[6].transform.position + (Vector3.up * SHAPES_BETWEEN_DISTANCE);
+            Shapes[1].transform.position = Shapes[0].transform.position + (Vector3.up * SHAPES_BETWEEN_DISTANCE);
             Shapes.ForEach(it => it.transform.GetChild(2).gameObject.SetActive(true));
             Shapes = Shapes.OrderBy(it => it.transform.position.y).ToList();
 
-            ColorSwitcherTransform[0].position = ColorSwitcherTransform[6].position + (Vector3.up * 5.0f);
-            ColorSwitcherTransform[1].position = ColorSwitcherTransform[0].position + (Vector3.up * 5.0f);
+            ColorSwitcherTransform[0].position = ColorSwitcherTransform[6].position + (Vector3.up * COLORSWITCHER_BETWEEN_DISTANCE);
+            ColorSwitcherTransform[1].position = ColorSwitcherTransform[0].position + (Vector3.up * COLORSWITCHER_BETWEEN_DISTANCE);
             ColorSwitcherTransform[0].gameObject.SetActive(true);
             ColorSwitcherTransform[1].gameObject.SetActive(true);
             ColorSwitcherTransform = ColorSwitcherTransform.OrderBy(it => it.position.y).ToList();
@@ -147,6 +143,7 @@ public class GameManager : ColorSwitch
 
     private void GameManager_CaptureScore()
     {
+        Debug.Log("Score : " + Score + " : " + (Score % 3));
         if (Score != 0 && Score % 3 == 0)
         {
             SetObjectTransform();
@@ -199,13 +196,7 @@ public class GameManager : ColorSwitch
         //    default:
         //        break;
         //}
-        
-    }
 
-    public void CreateColorSwitcher(Vector3 position)
-    {
-        GameObject colorSwitcher = Instantiate(ColorSwitchPrefab, position - (Vector3.up * 2.2f ), Quaternion.identity) as GameObject;
-        colorSwitcher.GetComponent<ColorSwitcher>().Initialize(this);
     }
 
     public void OnColorChange(ColorType color)
@@ -242,7 +233,7 @@ public class GameManager : ColorSwitch
 
         if (Score > PlayerPrefs.GetInt("BestScore"))
         {
-            PlayerPrefs.SetInt("BestScore",Score);
+            PlayerPrefs.SetInt("BestScore", Score);
         }
 
         SceneManager.LoadScene(1);
